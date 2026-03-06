@@ -1,4 +1,4 @@
-# Lakshya — Sacred Artifacts
+# Lakshya —Sacred Artifacts
 
 Curated house of sacred artifacts. Rare temple pieces, bronze sculptures, and devotional heirlooms for the discerning collector.
 
