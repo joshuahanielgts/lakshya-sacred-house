@@ -1,4 +1,5 @@
-import { motion } from "framer-motion";
+import { motion, useScroll, useTransform } from "framer-motion";
+import { useRef } from "react";
 import product1 from "@/assets/product-1.jpg";
 import product2 from "@/assets/product-2.jpg";
 import product3 from "@/assets/product-3.jpg";
@@ -32,9 +33,16 @@ const formatPrice = (price: number) =>
 const ProductCard = ({ product, index }: { product: Product; index: number }) => {
   const isHighTicket = product.price > 50000;
   const whatsappMsg = encodeURIComponent(`Hi, I'm interested in "${product.name}" (${formatPrice(product.price)}) from Lakshya.`);
+  const cardRef = useRef<HTMLDivElement>(null);
+  const { scrollYProgress } = useScroll({
+    target: cardRef,
+    offset: ["start end", "end start"],
+  });
+  const imageY = useTransform(scrollYProgress, [0, 1], ["-8%", "8%"]);
 
   return (
     <motion.div
+      ref={cardRef}
       initial={{ opacity: 0, y: 40 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: "-50px" }}
@@ -43,10 +51,11 @@ const ProductCard = ({ product, index }: { product: Product; index: number }) =>
     >
       <div className="relative overflow-hidden bg-card border border-transparent hover:border-primary/50 transition-all duration-500 hover:-translate-y-2 hover:shadow-[0_20px_60px_-15px_hsl(43_52%_54%_/_0.15)]">
         <div className="aspect-[4/5] overflow-hidden">
-          <img
+          <motion.img
+            style={{ y: imageY }}
             src={product.image}
             alt={product.name}
-            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+            className="w-full h-[115%] object-cover transition-transform duration-700 group-hover:scale-105"
             loading="lazy"
           />
         </div>
