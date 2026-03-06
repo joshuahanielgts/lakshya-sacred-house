@@ -2,18 +2,31 @@ import { motion } from "framer-motion";
 import { useState } from "react";
 import { MessageCircle } from "lucide-react";
 import { toast } from "sonner";
+import { useMutation } from "convex/react";
+import { api } from "../../convex/_generated/api";
 
 const ContactSection = () => {
   const [form, setForm] = useState({ name: "", phone: "", whatsapp: "", interest: "" });
+  const createInquiry = useMutation(api.inquiries.create);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!form.name.trim() || !form.phone.trim()) {
       toast.error("Please fill in your name and phone number.");
       return;
     }
-    toast.success("Thank you. We will reach out to you shortly.");
-    setForm({ name: "", phone: "", whatsapp: "", interest: "" });
+    try {
+      await createInquiry({
+        name: form.name,
+        phone: form.phone,
+        whatsapp: form.whatsapp || undefined,
+        interest: form.interest || undefined,
+      });
+      toast.success("Thank you. We will reach out to you shortly.");
+      setForm({ name: "", phone: "", whatsapp: "", interest: "" });
+    } catch {
+      toast.error("Something went wrong. Please try again.");
+    }
   };
 
   const inputClass =

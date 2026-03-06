@@ -1,5 +1,11 @@
 import { motion, useScroll, useTransform } from "framer-motion";
 import { useRef } from "react";
+import { useQuery } from "convex/react";
+import { api } from "../../convex/_generated/api";
+import { useCartContext } from "@/components/CartProvider";
+import { Id } from "../../convex/_generated/dataModel";
+
+// Static image imports as fallbacks for local dev / seed images
 import product1 from "@/assets/product-1.jpg";
 import product2 from "@/assets/product-2.jpg";
 import product3 from "@/assets/product-3.jpg";
@@ -9,29 +15,34 @@ import product6 from "@/assets/product-6.jpg";
 import product7 from "@/assets/product-7.jpg";
 import product8 from "@/assets/product-8.jpg";
 
-interface Product {
+const localImages: Record<string, string> = {
+  "/assets/product-1.jpg": product1,
+  "/assets/product-2.jpg": product2,
+  "/assets/product-3.jpg": product3,
+  "/assets/product-4.jpg": product4,
+  "/assets/product-5.jpg": product5,
+  "/assets/product-6.jpg": product6,
+  "/assets/product-7.jpg": product7,
+  "/assets/product-8.jpg": product8,
+};
+
+const resolveImage = (img: string) => localImages[img] ?? img;
+
+const formatPrice = (paise: number) =>
+  `₹${(paise / 100).toLocaleString("en-IN")}`;
+
+interface ConvexProduct {
+  _id: Id<"products">;
   name: string;
   description: string;
   price: number;
   image: string;
+  inStock: boolean;
 }
 
-const products: Product[] = [
-  { name: "Nataraja in Cosmic Dance", description: "Chola-era bronze, 18th century reproduction", price: 85000, image: product1 },
-  { name: "Temple Diya — Eternal Flame", description: "Ornate brass oil lamp with sacred motifs", price: 24000, image: product2 },
-  { name: "Sandalwood Ganesha", description: "Hand-carved Mysore sandalwood, 12 inches", price: 45000, image: product3 },
-  { name: "Ceremonial Puja Thali", description: "Antique copper with temple engravings", price: 18000, image: product4 },
-  { name: "Sacred Stone Stele", description: "Ancient carved stone on brass pedestal", price: 120000, image: product5 },
-  { name: "Saraswati with Veena", description: "Museum-grade bronze, lost-wax casting", price: 95000, image: product6 },
-  { name: "Temple Kumkum Casket", description: "Silver-plated with mythological relief", price: 55000, image: product7 },
-  { name: "Mandir Ghanta — Temple Bell", description: "Consecrated brass bell with sacred chain", price: 32000, image: product8 },
-];
-
-const formatPrice = (price: number) =>
-  `₹${price.toLocaleString("en-IN")}`;
-
-const ProductCard = ({ product, index }: { product: Product; index: number }) => {
-  const isHighTicket = product.price > 50000;
+const ProductCard = ({ product, index }: { product: ConvexProduct; index: number }) => {
+  const { addItem } = useCartContext();
+  const isHighTicket = product.price > 5000000; // ₹50,000+
   const whatsappMsg = encodeURIComponent(`Hi, I'm interested in "${product.name}" (${formatPrice(product.price)}) from Lakshya.`);
   const cardRef = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({
@@ -53,7 +64,7 @@ const ProductCard = ({ product, index }: { product: Product; index: number }) =>
         <div className="aspect-[4/5] overflow-hidden">
           <motion.img
             style={{ y: imageY }}
-            src={product.image}
+            src={resolveImage(product.image)}
             alt={product.name}
             className="w-full h-[115%] object-cover transition-transform duration-700 group-hover:scale-105"
             loading="lazy"
@@ -76,8 +87,19 @@ const ProductCard = ({ product, index }: { product: Product; index: number }) =>
                 Inquire on WhatsApp
               </a>
             ) : (
-              <button className="w-full py-3 border border-primary/40 text-primary text-xs tracking-[0.2em] uppercase font-sans hover:bg-primary hover:text-primary-foreground transition-all duration-300">
-                Claim This Piece
+              <button
+                onClick={() =>
+                  addItem({
+                    productId: product._id,
+                    productName: product.name,
+                    price: product.price,
+                    image: resolveImage(product.image),
+                  })
+                }
+                disabled={!product.inStock}
+                className="w-full py-3 border border-primary/40 text-primary text-xs tracking-[0.2em] uppercase font-sans hover:bg-primary hover:text-primary-foreground transition-all duration-300 disabled:opacity-40 disabled:cursor-not-allowed"
+              >
+                {product.inStock ? "Add to Cart" : "Sold Out"}
               </button>
             )}
           </div>
@@ -88,6 +110,8 @@ const ProductCard = ({ product, index }: { product: Product; index: number }) =>
 };
 
 const CollectionSection = () => {
+  const products = useQuery(api.products.list);
+
   return (
     <section id="collection" className="py-24 px-6 bg-background">
       <div className="max-w-7xl mx-auto">
@@ -106,11 +130,26 @@ const CollectionSection = () => {
           </p>
         </motion.div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {products.map((product, i) => (
-            <ProductCard key={product.name} product={product} index={i} />
-          ))}
-        </div>
+        {products === undefined ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {Array.from({ length: 8 }).map((_, i) => (
+              <div key={i} className="animate-pulse">
+                <div className="aspect-[4/5] bg-card border border-border" />
+                <div className="p-6 space-y-3">
+                  <div className="h-4 bg-muted rounded w-3/4" />
+                  <div className="h-3 bg-muted rounded w-1/2" />
+                  <div className="h-5 bg-muted rounded w-1/3" />
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {products.map((product, i) => (
+              <ProductCard key={product._id} product={product} index={i} />
+            ))}
+          </div>
+        )}
       </div>
     </section>
   );
