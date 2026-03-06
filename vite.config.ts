@@ -9,6 +9,17 @@ export default defineConfig(({ mode }) => ({
     port: 8080,
   },
   plugins: [react()],
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          vendor: ["react", "react-dom", "react-router-dom"],
+          ui: ["framer-motion", "lucide-react", "sonner"],
+          convex: ["convex"],
+        },
+      },
+    },
+  },
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
