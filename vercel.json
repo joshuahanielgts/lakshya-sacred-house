@@ -1,5 +1,5 @@
 {
     "rewrites": [
-        { "source": "/((?!api|_next|convex).*)", "destination": "/index.html" }
+        { "source": "/((?!api|_next).*)", "destination": "/index.html" }
     ]
 }

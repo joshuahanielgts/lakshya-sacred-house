@@ -1,12 +1,11 @@
 import { createContext, useContext, ReactNode } from "react";
 import { useCart, CartItem } from "@/hooks/use-cart";
-import { Id } from "../../convex/_generated/dataModel";
 
 interface CartContextType {
   items: CartItem[];
   addItem: (item: Omit<CartItem, "quantity">) => void;
-  removeItem: (productId: Id<"products">) => void;
-  updateQuantity: (productId: Id<"products">, quantity: number) => void;
+  removeItem: (productId: string) => void;
+  updateQuantity: (productId: string, quantity: number) => void;
   clearCart: () => void;
   totalAmount: number;
   itemCount: number;

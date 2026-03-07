@@ -2,12 +2,10 @@ import { motion } from "framer-motion";
 import { useState } from "react";
 import { MessageCircle } from "lucide-react";
 import { toast } from "sonner";
-import { useMutation } from "convex/react";
-import { api } from "../../convex/_generated/api";
+import { createInquiry } from "@/lib/db";
 
 const ContactSection = () => {
   const [form, setForm] = useState({ name: "", phone: "", whatsapp: "", interest: "" });
-  const createInquiry = useMutation(api.inquiries.create);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

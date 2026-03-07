@@ -1,14 +1,17 @@
 import { useState, useCallback } from "react";
-import { useMutation, useAction } from "convex/react";
-import { api } from "../../convex/_generated/api";
-import { Id } from "../../convex/_generated/dataModel";
+import {
+  createOrder,
+  updateOrderPaymentInitiated,
+  markOrderPaid,
+  createRazorpayOrder,
+} from "@/lib/db";
 import { loadRazorpayScript, openRazorpayCheckout } from "@/lib/razorpay";
 import { toast } from "sonner";
 
 const RAZORPAY_KEY_ID = import.meta.env.VITE_RAZORPAY_KEY_ID ?? "";
 
 export interface CartItem {
-  productId: Id<"products">;
+  productId: string;
   productName: string;
   price: number; // in paise
   quantity: number;
@@ -18,11 +21,6 @@ export interface CartItem {
 export function useCart() {
   const [items, setItems] = useState<CartItem[]>([]);
   const [isProcessing, setIsProcessing] = useState(false);
-
-  const createOrder = useMutation(api.orders.create);
-  const updatePaymentInitiated = useMutation(api.orders.updatePaymentInitiated);
-  const markPaid = useMutation(api.orders.markPaid);
-  const createRazorpayOrder = useAction(api.payments.createRazorpayOrder);
 
   const addItem = useCallback((item: Omit<CartItem, "quantity">) => {
     setItems((prev) => {
@@ -37,11 +35,11 @@ export function useCart() {
     toast.success(`${item.productName} added to cart`);
   }, []);
 
-  const removeItem = useCallback((productId: Id<"products">) => {
+  const removeItem = useCallback((productId: string) => {
     setItems((prev) => prev.filter((i) => i.productId !== productId));
   }, []);
 
-  const updateQuantity = useCallback((productId: Id<"products">, quantity: number) => {
+  const updateQuantity = useCallback((productId: string, quantity: number) => {
     if (quantity <= 0) {
       setItems((prev) => prev.filter((i) => i.productId !== productId));
       return;
@@ -74,22 +72,22 @@ export function useCart() {
 
       setIsProcessing(true);
       try {
-        // 1. Create order in Convex
+        // 1. Create order in Supabase
         const orderId = await createOrder({
           customerName: customer.name,
           customerPhone: customer.phone,
           customerWhatsapp: customer.whatsapp,
           customerEmail: customer.email,
           items: items.map((i) => ({
-            productId: i.productId,
-            productName: i.productName,
+            product_id: i.productId,
+            product_name: i.productName,
             price: i.price,
             quantity: i.quantity,
           })),
           totalAmount,
         });
 
-        // 2. Create Razorpay order via Convex action
+        // 2. Create Razorpay order via Supabase Edge Function
         const razorpayOrder = await createRazorpayOrder({
           amount: totalAmount,
           currency: "INR",
@@ -97,10 +95,7 @@ export function useCart() {
         });
 
         // 3. Update order with Razorpay order ID
-        await updatePaymentInitiated({
-          orderId,
-          razorpayOrderId: razorpayOrder.id,
-        });
+        await updateOrderPaymentInitiated(orderId, razorpayOrder.id);
 
         // 4. Load Razorpay and open checkout
         await loadRazorpayScript();
@@ -120,11 +115,11 @@ export function useCart() {
           theme: { color: "#b8993e" },
           handler: async (response) => {
             try {
-              await markPaid({
+              await markOrderPaid(
                 orderId,
-                razorpayPaymentId: response.razorpay_payment_id,
-                razorpaySignature: response.razorpay_signature,
-              });
+                response.razorpay_payment_id,
+                response.razorpay_signature,
+              );
               toast.success("Payment successful! Your sacred pieces are on their way.");
               clearCart();
             } catch {
@@ -144,7 +139,7 @@ export function useCart() {
         setIsProcessing(false);
       }
     },
-    [items, totalAmount, createOrder, createRazorpayOrder, updatePaymentInitiated, markPaid, clearCart]
+    [items, totalAmount, clearCart]
   );
 
   return {

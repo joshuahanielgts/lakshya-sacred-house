@@ -1,9 +1,8 @@
 import { motion, useScroll, useTransform } from "framer-motion";
-import { useRef } from "react";
-import { useQuery } from "convex/react";
-import { api } from "../../convex/_generated/api";
+import { useRef, useEffect, useState } from "react";
 import { useCartContext } from "@/components/CartProvider";
-import { Id } from "../../convex/_generated/dataModel";
+import { fetchProducts } from "@/lib/db";
+import type { Product } from "@/lib/database.types";
 
 // Static image imports as fallbacks for local dev / seed images
 import product1 from "@/assets/product-1.jpg";
@@ -31,16 +30,7 @@ const resolveImage = (img: string) => localImages[img] ?? img;
 const formatPrice = (paise: number) =>
   `₹${(paise / 100).toLocaleString("en-IN")}`;
 
-interface ConvexProduct {
-  _id: Id<"products">;
-  name: string;
-  description: string;
-  price: number;
-  image: string;
-  inStock: boolean;
-}
-
-const ProductCard = ({ product, index }: { product: ConvexProduct; index: number }) => {
+const ProductCard = ({ product, index }: { product: Product; index: number }) => {
   const { addItem } = useCartContext();
   const isHighTicket = product.price > 5000000; // ₹50,000+
   const whatsappMsg = encodeURIComponent(`Hi, I'm interested in "${product.name}" (${formatPrice(product.price)}) from Lakshya.`);
@@ -90,16 +80,16 @@ const ProductCard = ({ product, index }: { product: ConvexProduct; index: number
               <button
                 onClick={() =>
                   addItem({
-                    productId: product._id,
+                    productId: product.id,
                     productName: product.name,
                     price: product.price,
                     image: resolveImage(product.image),
                   })
                 }
-                disabled={!product.inStock}
+                disabled={!product.in_stock}
                 className="w-full py-3 border border-primary/40 text-primary text-xs tracking-[0.2em] uppercase font-sans hover:bg-primary hover:text-primary-foreground transition-all duration-300 disabled:opacity-40 disabled:cursor-not-allowed"
               >
-                {product.inStock ? "Add to Cart" : "Sold Out"}
+                {product.in_stock ? "Add to Cart" : "Sold Out"}
               </button>
             )}
           </div>
@@ -110,7 +100,11 @@ const ProductCard = ({ product, index }: { product: ConvexProduct; index: number
 };
 
 const CollectionSection = () => {
-  const products = useQuery(api.products.list);
+  const [products, setProducts] = useState<Product[] | undefined>(undefined);
+
+  useEffect(() => {
+    fetchProducts().then(setProducts).catch(console.error);
+  }, []);
 
   return (
     <section id="collection" className="py-24 px-6 bg-background">
@@ -146,7 +140,7 @@ const CollectionSection = () => {
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {products.map((product, i) => (
-              <ProductCard key={product._id} product={product} index={i} />
+              <ProductCard key={product.id} product={product} index={i} />
             ))}
           </div>
         )}
