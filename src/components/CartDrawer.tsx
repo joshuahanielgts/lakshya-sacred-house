@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 import { ShoppingBag, X, Plus, Minus, Trash2 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useCartContext } from "@/components/CartProvider";
@@ -11,6 +12,12 @@ const CartDrawer = () => {
   const [open, setOpen] = useState(false);
   const [showCheckout, setShowCheckout] = useState(false);
   const { items, removeItem, updateQuantity, totalAmount, itemCount, clearCart } = useCartContext();
+
+  // Lock body scroll when drawer is open
+  useEffect(() => {
+    document.body.style.overflow = open ? "hidden" : "";
+    return () => { document.body.style.overflow = ""; };
+  }, [open]);
 
   return (
     <>
@@ -28,29 +35,32 @@ const CartDrawer = () => {
         )}
       </button>
 
-      {/* Backdrop */}
-      <AnimatePresence>
-        {open && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            onClick={() => setOpen(false)}
-            className="fixed inset-0 z-[60] bg-black/60 backdrop-blur-sm"
-          />
-        )}
-      </AnimatePresence>
+      {/* Portal: render overlay outside Navbar to avoid backdrop-filter stacking context */}
+      {createPortal(
+        <>
+          {/* Backdrop */}
+          <AnimatePresence>
+            {open && (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                onClick={() => setOpen(false)}
+                className="fixed inset-0 z-[9998] bg-black/60 backdrop-blur-sm"
+              />
+            )}
+          </AnimatePresence>
 
-      {/* Drawer */}
-      <AnimatePresence>
-        {open && (
-          <motion.div
-            initial={{ x: "100%" }}
-            animate={{ x: 0 }}
-            exit={{ x: "100%" }}
-            transition={{ type: "spring", damping: 30, stiffness: 300 }}
-            className="fixed top-0 right-0 bottom-0 z-[70] w-full max-w-md bg-background border-l border-border flex flex-col"
-          >
+          {/* Drawer */}
+          <AnimatePresence>
+            {open && (
+              <motion.div
+                initial={{ x: "100%" }}
+                animate={{ x: 0 }}
+                exit={{ x: "100%" }}
+                transition={{ type: "spring", damping: 30, stiffness: 300 }}
+                className="fixed top-0 right-0 bottom-0 z-[9999] w-full max-w-md bg-background border-l border-border flex flex-col"
+              >
             {/* Header */}
             <div className="flex items-center justify-between p-6 border-b border-border">
               <h2 className="font-display text-2xl text-gold tracking-wider">
@@ -66,7 +76,7 @@ const CartDrawer = () => {
             ) : (
               <>
                 {/* Items */}
-                <div className="flex-1 overflow-y-auto p-6 space-y-4">
+                <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-3 sm:space-y-4">
                   {items.length === 0 ? (
                     <div className="text-center py-16">
                       <ShoppingBag className="w-12 h-12 mx-auto text-muted-foreground/30 mb-4" />
@@ -75,20 +85,24 @@ const CartDrawer = () => {
                     </div>
                   ) : (
                     items.map((item) => (
-                      <div key={item.productId} className="flex gap-4 border border-border p-3">
-                        <img src={item.image} alt={item.productName} className="w-20 h-20 object-cover" />
+                      <div key={item.productId} className="flex gap-3 sm:gap-4 border border-border p-2.5 sm:p-3">
+                        <img
+                          src={item.image}
+                          alt={item.productName}
+                          className="w-16 h-16 sm:w-20 sm:h-20 object-cover flex-shrink-0"
+                        />
                         <div className="flex-1 min-w-0">
                           <h3 className="font-display text-sm text-foreground truncate">{item.productName}</h3>
-                          <p className="text-gold font-display text-lg">{formatPrice(item.price)}</p>
-                          <div className="flex items-center gap-3 mt-2">
-                            <button onClick={() => updateQuantity(item.productId, item.quantity - 1)} className="text-muted-foreground hover:text-foreground">
+                          <p className="text-gold font-display text-base sm:text-lg">{formatPrice(item.price)}</p>
+                          <div className="flex items-center gap-3 mt-1.5 sm:mt-2">
+                            <button onClick={() => updateQuantity(item.productId, item.quantity - 1)} className="text-muted-foreground hover:text-foreground p-1">
                               <Minus className="w-3.5 h-3.5" />
                             </button>
                             <span className="text-xs font-sans text-foreground w-4 text-center">{item.quantity}</span>
-                            <button onClick={() => updateQuantity(item.productId, item.quantity + 1)} className="text-muted-foreground hover:text-foreground">
+                            <button onClick={() => updateQuantity(item.productId, item.quantity + 1)} className="text-muted-foreground hover:text-foreground p-1">
                               <Plus className="w-3.5 h-3.5" />
                             </button>
-                            <button onClick={() => removeItem(item.productId)} className="ml-auto text-muted-foreground hover:text-destructive">
+                            <button onClick={() => removeItem(item.productId)} className="ml-auto text-muted-foreground hover:text-destructive p-1">
                               <Trash2 className="w-3.5 h-3.5" />
                             </button>
                           </div>
@@ -100,7 +114,7 @@ const CartDrawer = () => {
 
                 {/* Footer */}
                 {items.length > 0 && (
-                  <div className="border-t border-border p-6 space-y-4">
+                  <div className="border-t border-border p-4 sm:p-6 space-y-3 sm:space-y-4">
                     <div className="flex justify-between items-center">
                       <span className="font-sans text-sm text-muted-foreground uppercase tracking-wider">Total</span>
                       <span className="font-display text-2xl text-gold">{formatPrice(totalAmount)}</span>
@@ -124,6 +138,9 @@ const CartDrawer = () => {
           </motion.div>
         )}
       </AnimatePresence>
+        </>,
+        document.body,
+      )}
     </>
   );
 };
