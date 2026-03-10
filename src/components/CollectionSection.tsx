@@ -103,7 +103,7 @@ const CollectionSection = () => {
   const [products, setProducts] = useState<Product[] | undefined>(undefined);
 
   useEffect(() => {
-    fetchProducts().then(setProducts).catch(console.error);
+    fetchProducts().then((data) => setProducts(data as Product[])).catch(console.error);
   }, []);
 
   return (
