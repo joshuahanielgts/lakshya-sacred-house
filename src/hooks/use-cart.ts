@@ -4,6 +4,7 @@ import {
   updateOrderPaymentInitiated,
   markOrderPaid,
   createRazorpayOrder,
+  verifyPayment,
 } from "@/lib/db";
 import { loadRazorpayScript, openRazorpayCheckout } from "@/lib/razorpay";
 import { toast } from "sonner";
@@ -115,6 +116,16 @@ export function useCart() {
           theme: { color: "#b8993e" },
           handler: async (response) => {
             try {
+              // Verify signature server-side before trusting the payment
+              const { verified } = await verifyPayment({
+                razorpayOrderId: response.razorpay_order_id,
+                razorpayPaymentId: response.razorpay_payment_id,
+                razorpaySignature: response.razorpay_signature,
+              });
+              if (!verified) {
+                toast.error("Payment verification failed. Please contact support.");
+                return;
+              }
               await markOrderPaid(
                 orderId,
                 response.razorpay_payment_id,

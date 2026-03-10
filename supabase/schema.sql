@@ -1,12 +1,23 @@
 -- ============================================================
 -- Lakshya Sacred House — Supabase Schema
+-- Run this file in the Supabase SQL Editor (https://supabase.com/dashboard → SQL Editor)
+-- Safe to re-run: uses DROP IF EXISTS to reset cleanly.
 -- ============================================================
 
--- Enable UUID generation
+-- 0. Cleanup (safe on fresh DB)
+-- CASCADE drops dependent triggers automatically.
+-- ============================================================
+drop table if exists public.inquiries cascade;
+drop table if exists public.orders    cascade;
+drop table if exists public.products  cascade;
+drop function if exists public.handle_updated_at();
+
+-- 1. Extensions
+-- ============================================================
 create extension if not exists "uuid-ossp";
 
 -- ============================================================
--- PRODUCTS
+-- 2. PRODUCTS
 -- ============================================================
 create table public.products (
   id          uuid primary key default uuid_generate_v4(),
@@ -23,11 +34,11 @@ create table public.products (
 );
 
 create index idx_products_category   on public.products (category);
-create index idx_products_featured   on public.products (featured);
+create index idx_products_featured   on public.products (featured) where featured = true;
 create index idx_products_sort_order on public.products (sort_order);
 
 -- ============================================================
--- ORDERS
+-- 3. ORDERS
 -- ============================================================
 create table public.orders (
   id                    uuid primary key default uuid_generate_v4(),
@@ -49,10 +60,10 @@ create table public.orders (
 );
 
 create index idx_orders_status             on public.orders (status);
-create index idx_orders_razorpay_order_id  on public.orders (razorpay_order_id);
+create index idx_orders_razorpay_order_id  on public.orders (razorpay_order_id) where razorpay_order_id is not null;
 
 -- ============================================================
--- INQUIRIES
+-- 4. INQUIRIES
 -- ============================================================
 create table public.inquiries (
   id         uuid primary key default uuid_generate_v4(),
@@ -69,7 +80,7 @@ create table public.inquiries (
 create index idx_inquiries_status on public.inquiries (status);
 
 -- ============================================================
--- Auto-update updated_at trigger
+-- 5. Auto-update updated_at trigger
 -- ============================================================
 create or replace function public.handle_updated_at()
 returns trigger as $$
@@ -92,17 +103,17 @@ create trigger set_inquiries_updated_at
   for each row execute function public.handle_updated_at();
 
 -- ============================================================
--- Row Level Security (RLS)
+-- 6. Row Level Security (RLS)
 -- ============================================================
 
--- Products: public read, no public write
+-- PRODUCTS — public read, no public write
 alter table public.products enable row level security;
 
 create policy "Products are publicly readable"
   on public.products for select
   using (true);
 
--- Orders: allow anonymous inserts & updates (for checkout flow)
+-- ORDERS — anonymous inserts, reads, and updates (for checkout/payment flow)
 alter table public.orders enable row level security;
 
 create policy "Anyone can create orders"
@@ -117,7 +128,7 @@ create policy "Anyone can update orders (for payment flow)"
   on public.orders for update
   using (true);
 
--- Inquiries: allow anonymous inserts
+-- INQUIRIES — anonymous inserts only
 alter table public.inquiries enable row level security;
 
 create policy "Anyone can create inquiries"
@@ -125,7 +136,7 @@ create policy "Anyone can create inquiries"
   with check (true);
 
 -- ============================================================
--- SEED DATA
+-- 7. SEED DATA — 8 curated products
 -- ============================================================
 insert into public.products (name, description, price, image, category, in_stock, featured, sort_order) values
   ('Nataraja in Cosmic Dance',      'Chola-era bronze, 18th century reproduction',     8500000,  '/assets/product-1.jpg', 'bronze', true,  true,  1),
@@ -136,3 +147,20 @@ insert into public.products (name, description, price, image, category, in_stock
   ('Saraswati with Veena',          'Museum-grade bronze, lost-wax casting',           9500000,  '/assets/product-6.jpg', 'bronze', true,  true,  6),
   ('Temple Kumkum Casket',          'Silver-plated with mythological relief',          5500000,  '/assets/product-7.jpg', 'silver', true,  false, 7),
   ('Mandir Ghanta — Temple Bell',   'Consecrated brass bell with sacred chain',        3200000,  '/assets/product-8.jpg', 'brass',  true,  false, 8);
+
+-- ============================================================
+-- Done! Next steps:
+--
+-- 1. Deploy Edge Functions:
+--    supabase functions deploy create-razorpay-order
+--    supabase functions deploy verify-payment
+--
+-- 2. Set Edge Function secrets:
+--    supabase secrets set RAZORPAY_KEY_ID=rzp_test_xxxxxxxxxxxx
+--    supabase secrets set RAZORPAY_KEY_SECRET=your-secret-here
+--
+-- 3. Set client env vars in .env:
+--    VITE_SUPABASE_URL=https://your-project.supabase.co
+--    VITE_SUPABASE_ANON_KEY=your-anon-key
+--    VITE_RAZORPAY_KEY_ID=rzp_test_xxxxxxxxxxxx
+-- ============================================================
