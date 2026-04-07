@@ -2,7 +2,7 @@ import { MessageCircle } from "lucide-react";
 
 const Footer = () => {
   return (
-    <footer className="py-16 px-6 bg-obsidian-light border-t border-border">
+    <footer className="py-16 pb-28 md:pb-16 px-6 bg-obsidian-light border-t border-border">
       <div className="max-w-4xl mx-auto text-center">
         <h2 className="font-display text-3xl tracking-[0.3em] text-gold font-light uppercase mb-4">
           Lakshya

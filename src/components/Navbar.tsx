@@ -1,6 +1,8 @@
 import { useState, useEffect } from "react";
-import { Menu, X } from "lucide-react";
+import { Home, Sparkles, Layers, Settings, Mail } from "lucide-react";
 import CartDrawer from "@/components/CartDrawer";
+import NavHeader from "@/components/ui/nav-header";
+import { InteractiveMenu, InteractiveMenuItem } from "@/components/ui/modern-mobile-menu";
 
 const navItems = [
   { label: "Philosophy", href: "#philosophy" },
@@ -9,9 +11,16 @@ const navItems = [
   { label: "Inquire", href: "#contact" },
 ];
 
+const mobileMenuItems: InteractiveMenuItem[] = [
+  { label: "Home", icon: Home, href: "#hero" },
+  { label: "Philosophy", icon: Sparkles, href: "#philosophy" },
+  { label: "Collection", icon: Layers, href: "#collection" },
+  { label: "Process", icon: Settings, href: "#process" },
+  { label: "Inquire", icon: Mail, href: "#contact" },
+];
+
 const Navbar = () => {
   const [scrolled, setScrolled] = useState(false);
-  const [menuOpen, setMenuOpen] = useState(false);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 50);
@@ -19,15 +28,11 @@ const Navbar = () => {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  // Lock body scroll when menu is open
-  useEffect(() => {
-    document.body.style.overflow = menuOpen ? "hidden" : "";
-    return () => { document.body.style.overflow = ""; };
-  }, [menuOpen]);
-
-  const handleNavClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
-    e.preventDefault();
-    setMenuOpen(false);
+  const handleNavigate = (href: string) => {
+    if (href === "#hero") {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+      return;
+    }
     const target = document.querySelector(href);
     if (target) {
       target.scrollIntoView({ behavior: "smooth" });
@@ -36,67 +41,49 @@ const Navbar = () => {
 
   return (
     <>
+      {/* Top Navigation Bar */}
       <nav
         className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
           scrolled ? "bg-background/90 backdrop-blur-md border-b border-border" : "bg-transparent"
         }`}
       >
-        <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3 sm:py-4 flex items-center justify-between">
+          {/* Logo */}
           <a
             href="#"
             onClick={(e) => {
               e.preventDefault();
               window.scrollTo({ top: 0, behavior: "smooth" });
             }}
-            className="font-display text-2xl tracking-[0.3em] text-gold font-semibold uppercase"
+            className="block group"
+            aria-label="Lakshya - Go to homepage"
           >
-            Lakshya
+            <img
+              src="/logo.jpg"
+              alt="Lakshya"
+              className="h-8 sm:h-10 w-auto object-contain"
+            />
           </a>
 
           {/* Desktop nav */}
-          <div className="hidden md:flex items-center gap-8">
-            {navItems.map((item) => (
-              <a
-                key={item.label}
-                href={item.href}
-                onClick={(e) => handleNavClick(e, item.href)}
-                className="text-sm tracking-[0.15em] uppercase text-muted-foreground hover:text-gold transition-colors duration-300 font-sans"
-              >
-                {item.label}
-              </a>
-            ))}
+          <div className="hidden md:block">
+            <NavHeader items={navItems} onNavigate={handleNavigate} />
           </div>
 
-          <div className="flex items-center gap-4">
+          {/* Cart */}
+          <div className="flex items-center">
             <CartDrawer />
-            {/* Mobile hamburger */}
-            <button
-              onClick={() => setMenuOpen(!menuOpen)}
-              className="md:hidden text-gold p-1"
-              aria-label={menuOpen ? "Close menu" : "Open menu"}
-            >
-              {menuOpen ? <X size={24} /> : <Menu size={24} />}
-            </button>
           </div>
         </div>
       </nav>
 
-      {/* Mobile menu overlay */}
-      <div
-        className={`fixed inset-0 z-40 bg-background/98 backdrop-blur-lg flex flex-col items-center justify-center gap-10 transition-all duration-500 md:hidden ${
-          menuOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
-        }`}
-      >
-        {navItems.map((item) => (
-          <a
-            key={item.label}
-            href={item.href}
-            onClick={(e) => handleNavClick(e, item.href)}
-            className="font-display text-3xl tracking-[0.25em] uppercase text-foreground hover:text-gold transition-colors duration-300"
-          >
-            {item.label}
-          </a>
-        ))}
+      {/* Mobile Bottom Navigation */}
+      <div className="fixed bottom-4 left-4 right-4 z-50 md:hidden safe-area-bottom">
+        <InteractiveMenu
+          items={mobileMenuItems}
+          accentColor="hsl(var(--gold))"
+          onNavigate={handleNavigate}
+        />
       </div>
     </>
   );

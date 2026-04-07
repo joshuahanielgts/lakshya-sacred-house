@@ -2,7 +2,7 @@ import { motion } from "framer-motion";
 
 const HeroSection = () => {
   return (
-    <section className="relative min-h-screen flex flex-col items-center justify-center overflow-hidden bg-background">
+    <section id="hero" className="relative min-h-screen flex flex-col items-center justify-center overflow-hidden bg-background pt-16 sm:pt-20">
       {/* Subtle radial glow */}
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_hsl(43_52%_54%_/_0.04)_0%,_transparent_70%)]" />
 

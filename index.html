@@ -2,20 +2,85 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <!-- TODO: Set the document title to the name of your application -->
-    <title>Lakshya — Sacred Artifacts</title>
-    <meta name="description" content="Curated house of sacred artifacts. Rare temple pieces, bronze sculptures, and devotional heirlooms for the discerning collector." />
-    <meta name="author" content="Lakshya" />
-
-    <meta property="og:title" content="Lakshya — Sacred. Rare. Eternal." />
-    <meta property="og:description" content="Curated house of sacred artifacts. Rare temple pieces, bronze sculptures, and devotional heirlooms." />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0" />
+    
+    <!-- Primary Meta Tags -->
+    <title>Lakshya — Sacred Artifacts | Rare Temple Pieces & Bronze Sculptures</title>
+    <meta name="title" content="Lakshya — Sacred Artifacts | Rare Temple Pieces & Bronze Sculptures" />
+    <meta name="description" content="Discover Lakshya's curated collection of sacred artifacts. Authentic rare temple pieces, antique bronze sculptures, and devotional heirlooms sourced from India's finest artisans for the discerning collector." />
+    <meta name="keywords" content="sacred artifacts, temple pieces, bronze sculptures, Indian antiques, devotional art, religious sculptures, Hindu artifacts, collector items, rare antiques, spiritual art, heritage pieces" />
+    <meta name="author" content="Lakshya Sacred House" />
+    <meta name="robots" content="index, follow" />
+    <meta name="language" content="English" />
+    <meta name="revisit-after" content="7 days" />
+    
+    <!-- Canonical URL -->
+    <link rel="canonical" href="https://lakshya.com" />
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/jpeg" href="/logo.jpg" />
+    <link rel="apple-touch-icon" href="/logo.jpg" />
+    
+    <!-- Theme Color -->
+    <meta name="theme-color" content="#0d0d0d" />
+    <meta name="msapplication-TileColor" content="#0d0d0d" />
+    
+    <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://lakshya.com" />
+    <meta property="og:title" content="Lakshya — Sacred. Rare. Eternal." />
+    <meta property="og:description" content="Curated house of sacred artifacts. Rare temple pieces, bronze sculptures, and devotional heirlooms for the discerning collector." />
+    <meta property="og:image" content="/logo.jpg" />
+    <meta property="og:site_name" content="Lakshya Sacred House" />
+    <meta property="og:locale" content="en_US" />
+    
+    <!-- Twitter -->
     <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:url" content="https://lakshya.com" />
+    <meta name="twitter:title" content="Lakshya — Sacred. Rare. Eternal." />
+    <meta name="twitter:description" content="Curated house of sacred artifacts. Rare temple pieces, bronze sculptures, and devotional heirlooms." />
+    <meta name="twitter:image" content="/logo.jpg" />
+    
+    <!-- Structured Data / JSON-LD -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Store",
+      "name": "Lakshya Sacred House",
+      "description": "Curated house of sacred artifacts. Rare temple pieces, bronze sculptures, and devotional heirlooms.",
+      "url": "https://lakshya.com",
+      "logo": "/logo.jpg",
+      "image": "/logo.jpg",
+      "priceRange": "$$$",
+      "address": {
+        "@type": "PostalAddress",
+        "addressCountry": "IN"
+      },
+      "sameAs": [],
+      "openingHoursSpecification": {
+        "@type": "OpeningHoursSpecification",
+        "dayOfWeek": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"],
+        "opens": "10:00",
+        "closes": "18:00"
+      }
+    }
+    </script>
+    
+    <!-- Preconnect to external resources -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   </head>
 
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
+    
+    <!-- Noscript fallback -->
+    <noscript>
+      <div style="padding: 2rem; text-align: center; font-family: system-ui, sans-serif;">
+        <h1>Lakshya — Sacred Artifacts</h1>
+        <p>Please enable JavaScript to experience our collection of sacred artifacts.</p>
+      </div>
+    </noscript>
   </body>
 </html>
