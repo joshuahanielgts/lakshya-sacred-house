@@ -22,7 +22,7 @@ function NavHeader({ items, onNavigate }: NavHeaderProps) {
 
   return (
     <ul
-      className="relative mx-auto flex w-fit rounded-full border border-gold/30 bg-background/80 backdrop-blur-sm p-1"
+      className="relative mx-auto flex w-fit rounded-full border border-gold/50 bg-white p-1 shadow-md"
       onMouseLeave={() => setPosition((pv) => ({ ...pv, opacity: 0 }))}
     >
       {items.map((item) => (
@@ -67,7 +67,7 @@ const Tab = ({
           left: ref.current.offsetLeft,
         });
       }}
-      className="relative z-10 block cursor-pointer px-4 py-2 text-xs tracking-[0.15em] uppercase text-foreground mix-blend-difference md:px-5 md:py-2.5 md:text-sm font-sans transition-colors"
+      className="relative z-10 block cursor-pointer px-4 py-2 text-xs tracking-[0.15em] uppercase text-stone-600 hover:text-white md:px-5 md:py-2.5 md:text-sm font-medium transition-colors"
     >
       {children}
     </li>
@@ -87,7 +87,7 @@ const Cursor = ({
         stiffness: 400,
         damping: 30,
       }}
-      className="absolute z-0 h-8 rounded-full bg-gold md:h-10"
+      className="absolute z-0 h-8 rounded-full bg-amber-700 md:h-10"
     />
   );
 };

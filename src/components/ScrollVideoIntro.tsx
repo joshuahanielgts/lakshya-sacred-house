@@ -9,9 +9,9 @@ interface ScrollVideoIntroProps {
   onComplete: () => void;
 }
 
-const SCROLL_TUNNEL_HEIGHT = 450; // vh units for scroll tunnel
-const LERP_FACTOR = 0.15; // Smoothing factor (0-1): lower = smoother but laggier
-const SEEK_THRESHOLD = 0.001; // Minimum time difference to trigger seek
+const SCROLL_TUNNEL_HEIGHT = 200; // vh units for scroll tunnel (short for quick completion)
+const LERP_FACTOR = 0.6; // Smoothing factor (0-1): very responsive
+const SEEK_THRESHOLD = 0.01; // Minimum time difference to trigger seek
 
 const ScrollVideoIntro = ({ onComplete }: ScrollVideoIntroProps) => {
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -42,10 +42,12 @@ const ScrollVideoIntro = ({ onComplete }: ScrollVideoIntroProps) => {
     const diff = Math.abs(targetTimeRef.current - currentTimeRef.current);
     
     if (diff > SEEK_THRESHOLD) {
+      // Near-instant for large jumps, smooth for small movements
+      const adaptiveLerp = diff > 0.3 ? 0.8 : LERP_FACTOR;
       currentTimeRef.current = lerp(
         currentTimeRef.current,
         targetTimeRef.current,
-        LERP_FACTOR
+        adaptiveLerp
       );
       
       video.currentTime = currentTimeRef.current;
@@ -76,7 +78,7 @@ const ScrollVideoIntro = ({ onComplete }: ScrollVideoIntroProps) => {
       const progress = bufferedEnd / video.duration;
       setBufferProgress(progress);
       
-      if (progress >= 0.5 && !isVideoReady) {
+      if (progress >= 0.2 && !isVideoReady) {
         setIsVideoReady(true);
       }
     }
@@ -105,12 +107,20 @@ const ScrollVideoIntro = ({ onComplete }: ScrollVideoIntroProps) => {
     );
     targetTimeRef.current = scrollProgress * videoDuration;
 
-    if (!isAnimatingRef.current) {
-      isAnimatingRef.current = true;
-      rafRef.current = requestAnimationFrame(updateVideoTime);
+    // Immediately update video for instant response
+    const video = videoRef.current;
+    if (video) {
+      // Direct assignment for instant feedback
+      video.currentTime = targetTimeRef.current;
+      currentTimeRef.current = targetTimeRef.current;
+      
+      if (!isAnimatingRef.current) {
+        isAnimatingRef.current = true;
+        rafRef.current = requestAnimationFrame(updateVideoTime);
+      }
     }
 
-    if (scrollProgress >= 0.99) {
+    if (scrollProgress >= 0.98) {
       setIsComplete(true);
     }
   }, [isVideoReady, videoDuration, updateVideoTime]);

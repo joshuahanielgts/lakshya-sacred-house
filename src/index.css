@@ -6,51 +6,52 @@
 
 @layer base {
   :root {
-    --background: 0 0% 5%;
-    --foreground: 40 10% 90%;
+    /* Light/White Theme */
+    --background: 40 30% 98%;
+    --foreground: 30 10% 15%;
 
-    --card: 0 0% 8%;
-    --card-foreground: 40 10% 90%;
+    --card: 40 20% 96%;
+    --card-foreground: 30 10% 15%;
 
-    --popover: 0 0% 8%;
-    --popover-foreground: 40 10% 90%;
+    --popover: 40 30% 98%;
+    --popover-foreground: 30 10% 15%;
 
-    --primary: 43 52% 54%;
-    --primary-foreground: 0 0% 5%;
+    --primary: 43 45% 42%;
+    --primary-foreground: 40 30% 98%;
 
-    --secondary: 0 0% 12%;
-    --secondary-foreground: 40 10% 90%;
+    --secondary: 40 15% 92%;
+    --secondary-foreground: 30 10% 20%;
 
-    --muted: 0 0% 15%;
-    --muted-foreground: 40 5% 55%;
+    --muted: 40 10% 90%;
+    --muted-foreground: 30 5% 45%;
 
-    --accent: 43 52% 54%;
-    --accent-foreground: 0 0% 5%;
+    --accent: 43 45% 42%;
+    --accent-foreground: 40 30% 98%;
 
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
 
-    --border: 43 20% 20%;
-    --input: 0 0% 15%;
-    --ring: 43 52% 54%;
+    --border: 40 15% 85%;
+    --input: 40 15% 90%;
+    --ring: 43 45% 42%;
 
     --radius: 0.25rem;
 
-    --gold: 43 52% 54%;
-    --gold-light: 43 60% 65%;
-    --gold-dark: 43 45% 40%;
-    --obsidian: 0 0% 5%;
-    --obsidian-light: 0 0% 10%;
-    --cream: 40 30% 92%;
+    --gold: 43 45% 42%;
+    --gold-light: 43 50% 52%;
+    --gold-dark: 43 40% 32%;
+    --obsidian: 40 20% 96%;
+    --obsidian-light: 40 15% 92%;
+    --cream: 30 10% 15%;
 
-    --sidebar-background: 0 0% 5%;
-    --sidebar-foreground: 40 10% 90%;
-    --sidebar-primary: 43 52% 54%;
-    --sidebar-primary-foreground: 0 0% 5%;
-    --sidebar-accent: 0 0% 12%;
-    --sidebar-accent-foreground: 40 10% 90%;
-    --sidebar-border: 43 20% 20%;
-    --sidebar-ring: 43 52% 54%;
+    --sidebar-background: 40 30% 98%;
+    --sidebar-foreground: 30 10% 15%;
+    --sidebar-primary: 43 45% 42%;
+    --sidebar-primary-foreground: 40 30% 98%;
+    --sidebar-accent: 40 15% 92%;
+    --sidebar-accent-foreground: 30 10% 20%;
+    --sidebar-border: 40 15% 85%;
+    --sidebar-ring: 43 45% 42%;
   }
 }
 
@@ -68,8 +69,8 @@
   }
 
   ::selection {
-    background: hsl(43 52% 54% / 0.3);
-    color: hsl(40 30% 92%);
+    background: hsl(43 45% 42% / 0.25);
+    color: hsl(30 10% 15%);
   }
 }
 
@@ -137,10 +138,11 @@
   max-width: 400px;
   margin: 0 auto;
   padding: 0.5rem 0.25rem;
-  background: var(--component-bg);
+  background: hsl(0 0% 100% / 0.95);
   border-radius: 1.5rem;
-  border: 1px solid var(--component-shadow);
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  border: 1px solid hsl(40 15% 85%);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  backdrop-filter: blur(8px);
 }
 
 .menu__item {

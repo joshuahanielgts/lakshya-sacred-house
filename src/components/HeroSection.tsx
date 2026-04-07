@@ -4,7 +4,7 @@ const HeroSection = () => {
   return (
     <section id="hero" className="relative min-h-screen flex flex-col items-center justify-center overflow-hidden bg-background pt-16 sm:pt-20">
       {/* Subtle radial glow */}
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_hsl(43_52%_54%_/_0.04)_0%,_transparent_70%)]" />
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_hsl(43_45%_42%_/_0.08)_0%,_transparent_70%)]" />
 
       <motion.div
         initial={{ opacity: 0, y: 30 }}
